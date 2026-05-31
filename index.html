@@ -10,9 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="preload" href="assets/jan.jpg" as="image">
+    <link rel="preload" href="assets/horror.mp3" as="audio">
+    <link rel="preload" href="assets/Jumpscare_Sound.mp3" as="audio">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <audio id="bg-music" src="assets/horror.mp3" loop></audio>
+    <audio id="scare-music" src="assets/Jumpscare_Sound.mp3" preload="auto"></audio>
     <div id="loading-screen" class="screen active">
         <div class="loading-content">
             <div class="loading-spinner"></div>

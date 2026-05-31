@@ -42,6 +42,9 @@ const DOM = {
     gameoverScreen:  document.getElementById('gameover-screen'),
     /* loading */
     loadingBar:      document.getElementById('loading-bar'),
+    /* audio */
+    bgMusic:         document.getElementById('bg-music'),
+    scareMusic:      document.getElementById('scare-music'),
     /* menu */
     startBtn:        document.getElementById('start-btn'),
     howToPlayBtn:    document.getElementById('how-to-play-btn'),
@@ -274,6 +277,14 @@ class GameEngine {
             e.preventDefault();
             /* AudioContext must be resumed from a user gesture */
             this.audio.init();
+
+            /* Start background music at 0:08 timestamp with 25% volume */
+            if (DOM.bgMusic) {
+                DOM.bgMusic.volume = 0.25;
+                DOM.bgMusic.currentTime = 8;
+                DOM.bgMusic.play().catch(err => console.warn('BGM play failed:', err));
+            }
+
             this.setState(GameState.PLAYING);
         });
         
@@ -307,6 +318,7 @@ class GameEngine {
         this.currentLevel = 1;
         this.currentTimerLimit = CONFIG.START_TIMER_MS;
         this.scareChance = 0;
+        this.hasFlickered = false;
         this.activeTileIndex = -1;
         this.elapsedTime = 0;
         this._cancelTimer();
@@ -400,6 +412,11 @@ class GameEngine {
 
         this._updateHUD();
 
+        if (this.scareChance >= 1.0 && !this.hasFlickered) {
+            this.hasFlickered = true;
+            this._triggerFlickerScare();
+        }
+
         /* Next tile after a brief success flash */
         setTimeout(() => {
             if (this.state === GameState.PLAYING) {
@@ -470,9 +487,24 @@ class GameEngine {
     }
 
     /* ------ JUMPSCARE ------ */
+    _triggerFlickerScare() {
+        if (this.state !== GameState.PLAYING) return;
+        DOM.jumpscareImage.src = this.preloader.scareImage.src || CONFIG.SCARE_IMAGE_PATH;
+        DOM.jumpscareScreen.classList.add('active');
+
+        setTimeout(() => {
+            if (this.state === GameState.PLAYING) {
+                DOM.jumpscareScreen.classList.remove('active');
+            }
+        }, 50);
+    }
+
     _enterJumpscare() {
         this._cancelTimer();
         this.elapsedTime = (performance.now() - this.startTime) / 1000;
+
+        /* Pause background music for maximum horror */
+        if (DOM.bgMusic) DOM.bgMusic.pause();
 
         /* Set the pre-loaded image */
         DOM.jumpscareImage.src = this.preloader.scareImage.src || CONFIG.SCARE_IMAGE_PATH;
@@ -485,13 +517,19 @@ class GameEngine {
 
         /* Play the scare sound after a brief delay (shake a little then sound) */
         setTimeout(() => {
-            this.audio.playScare();
+            if (DOM.scareMusic) {
+                DOM.scareMusic.currentTime = 3;
+                DOM.scareMusic.play().catch(e => console.warn('Scare sound failed', e));
+            }
         }, 300);
 
         /* Transition to game over after the scare duration */
         setTimeout(() => {
             DOM.jumpscareScreen.classList.remove('shake');
-            this.audio.stop();
+            if (DOM.scareMusic) {
+                DOM.scareMusic.pause();
+                DOM.scareMusic.currentTime = 0;
+            }
             this._exitFullscreen();
             this.setState(GameState.GAME_OVER);
         }, CONFIG.JUMPSCARE_DURATION_MS);
