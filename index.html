@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="NERVE - A reaction-based horror game. Tap the highlighted tiles before time runs out.">
+    <meta name="theme-color" content="#08080f">
+    <title>NERVE | Reaction Horror Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preload" href="assets/jan.jpg" as="image">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-screen" class="screen active">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Preparing your nightmare...</p>
+            <div class="loading-bar-track"><div class="loading-bar-fill" id="loading-bar"></div></div>
+        </div>
+    </div>
+    <main id="app">
+        <section id="menu-screen" class="screen">
+            <div class="vignette"></div>
+            <div class="scanlines"></div>
+            <div class="menu-content">
+                <h1 class="game-title">NERVE</h1>
+                <p class="game-subtitle">React or Die</p>
+                <div class="menu-buttons" style="display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0;">
+                    <button id="start-btn" class="btn btn-primary" type="button">
+                        <span class="btn-text">BEGIN</span><span class="btn-glow"></span>
+                    </button>
+                    <button id="how-to-play-btn" class="btn btn-secondary" type="button">
+                        <span class="btn-text">HOW TO PLAY</span>
+                    </button>
+                </div>
+                <p class="menu-hint">Best experienced with headphones 🎧</p>
+                <p class="author-credit" style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); opacity: 0.7; letter-spacing: 0.05em;">Made by: Deghne Gabriel Agana</p>
+            </div>
+        </section>
+        <section id="game-screen" class="screen">
+            <div class="vignette" id="game-vignette"></div>
+            <header class="game-hud">
+                <div class="hud-group hud-left">
+                    <div class="hud-item"><span class="hud-label">SCORE</span><span class="hud-value" id="score-display">0</span></div>
+                </div>
+                <div class="hud-group hud-center">
+                    <div class="hud-item hud-timer-block">
+                        <div class="timer-bar-track"><div class="timer-bar-fill" id="timer-bar"></div></div>
+                        <span class="timer-text" id="timer-text">3.00s</span>
+                    </div>
+                </div>
+                <div class="hud-group hud-right">
+                    <div class="hud-item"><span class="hud-label">LEVEL</span><span class="hud-value" id="level-display">1</span></div>
+                </div>
+            </header>
+            <div class="game-area">
+                <div class="grid-wrapper">
+                    <div class="grid-container" id="grid-container" role="grid"></div>
+                </div>
+            </div>
+            <footer class="tension-bar-wrapper">
+                <span class="tension-label">DANGER</span>
+                <div class="tension-bar-track"><div class="tension-bar-fill" id="tension-fill"></div></div>
+                <span class="tension-value" id="tension-value">0%</span>
+            </footer>
+        </section>
+        <section id="jumpscare-screen" class="screen jumpscare-overlay" aria-hidden="true">
+            <img id="jumpscare-image" src="" alt="" class="jumpscare-img" draggable="false">
+        </section>
+        <section id="gameover-screen" class="screen">
+            <div class="vignette"></div>
+            <div class="gameover-content">
+                <h2 class="gameover-title" id="gameover-title">GAME OVER</h2>
+                <p class="gameover-subtitle" id="gameover-subtitle"></p>
+                <div class="stats-grid">
+                    <div class="stat-card"><span class="stat-icon">⚡</span><span class="stat-value" id="final-score">0</span><span class="stat-label">Final Score</span></div>
+                    <div class="stat-card"><span class="stat-icon">📈</span><span class="stat-value" id="final-level">1</span><span class="stat-label">Level Reached</span></div>
+                    <div class="stat-card"><span class="stat-icon">🎯</span><span class="stat-value" id="final-cleared">0</span><span class="stat-label">Total Taps</span></div>
+                    <div class="stat-card"><span class="stat-icon">💀</span><span class="stat-value" id="final-cause">—</span><span class="stat-label">Cause of Death</span></div>
+                </div>
+                <button id="retry-btn" class="btn btn-primary" type="button">
+                    <span class="btn-text">TRY AGAIN</span><span class="btn-glow"></span>
+                </button>
+                <p class="author-credit" style="margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); opacity: 0.7; letter-spacing: 0.05em;">Made by: Deghne Gabriel Agana</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===================== HOW TO PLAY MODAL ===================== -->
+    <div id="how-to-play-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-content">
+            <h2 class="modal-title">HOW TO PLAY</h2>
+            <div class="modal-instructions">
+                <p>1. Tap all highlighted tiles to clear the level.</p>
+                <p>2. You start with <strong>5 seconds</strong> per tile, but it speeds up the more you tap.</p>
+                <p>3. As you progress, the grid grows. If time runs out, it will get you.</p>
+                <p class="warning-text">React quickly. Stay focused.</p>
+            </div>
+            <button id="close-modal-btn" class="btn btn-secondary" type="button">
+                <span class="btn-text">GOT IT</span>
+            </button>
+        </div>
+    </div>
+    <script src="app.js" defer></script>
+</body>
+</html>
