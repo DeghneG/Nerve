@@ -11,6 +11,7 @@ const CONFIG = {
     SCORE_PER_TILE: 10,
     TIME_BONUS_MULTIPLIER: 5,      // Bonus points per remaining second
     SCARE_IMAGE_PATH: 'assets/jan.jpg',
+    JUMPSCARE_DURATION_MS: 2800,   // How long the scare image shows
     AUDIO_SAMPLE_RATE: 44100,
     AUDIO_DURATION: 2.0,
     START_TIMER_MS: 5000,          // Timer starts at 5 seconds
