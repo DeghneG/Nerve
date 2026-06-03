@@ -362,9 +362,11 @@ class GameEngine {
             DOM.pauseModal.classList.add('active');
             this._cancelTimer();
             this.timeRemainingOnPause = Math.max(0, this.tileDeadline - performance.now());
+            this.elapsedBeforePause = performance.now() - (this.tileStartTime || performance.now());
             if (DOM.bgMusic) DOM.bgMusic.pause();
         } else {
             DOM.pauseModal.classList.remove('active');
+            this.tileStartTime = performance.now() - (this.elapsedBeforePause || 0);
             this.tileDeadline = performance.now() + this.timeRemainingOnPause;
             this._tickTimer();
             if (DOM.bgMusic) DOM.bgMusic.play().catch(()=>{});
@@ -476,8 +478,17 @@ class GameEngine {
             this.currentTimerLimit = Math.max(CONFIG.MIN_TIMER_MS, this.currentTimerLimit - CONFIG.TIMER_REDUCTION_MS);
         }
 
-        /* Increase tension */
-        this.scareChance += 0.05;
+        /* Update tension based on click speed */
+        const timeTaken = performance.now() - (this.tileStartTime || performance.now());
+        if (timeTaken < 2000) {
+            // Faster click = more anger (from +0.02 to +0.08)
+            const speedFactor = (2000 - timeTaken) / 2000;
+            const increase = 0.02 + (0.06 * speedFactor);
+            this.scareChance = Math.min(1.0, this.scareChance + increase);
+        } else {
+            // Slower click = reduce anger a bit
+            this.scareChance = Math.max(0.0, this.scareChance - 0.03);
+        }
 
         this._updateHUD();
 
@@ -497,7 +508,8 @@ class GameEngine {
 
     /* ------ TILE TIMER ------ */
     _startTileTimer() {
-        this.tileDeadline = performance.now() + this.currentTimerLimit;
+        this.tileStartTime = performance.now();
+        this.tileDeadline = this.tileStartTime + this.currentTimerLimit;
         DOM.timerBar.style.width = '100%';
         DOM.timerBar.classList.remove('warning', 'critical');
         this._tickTimer();
