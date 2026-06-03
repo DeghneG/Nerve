@@ -55,8 +55,14 @@
                         <span class="timer-text" id="timer-text">3.00s</span>
                     </div>
                 </div>
-                <div class="hud-group hud-right">
+                <div class="hud-group hud-right" style="gap: 1rem;">
                     <div class="hud-item"><span class="hud-label">LEVEL</span><span class="hud-value" id="level-display">1</span></div>
+                    <button id="pause-btn" class="btn btn-secondary" style="padding: 0.4rem; min-width: 40px; height: 40px;" type="button" aria-label="Pause Game">
+                        <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="1" width="3" height="12" rx="1"/>
+                            <rect x="9" y="1" width="3" height="12" rx="1"/>
+                        </svg>
+                    </button>
                 </div>
             </header>
             <div class="game-area">
@@ -91,6 +97,24 @@
             </div>
         </section>
     </main>
+
+    <!-- ===================== PAUSE MODAL ===================== -->
+    <div id="pause-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-content">
+            <h2 class="modal-title">PAUSED</h2>
+            <div class="menu-buttons" style="display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0 0 0;">
+                <button id="resume-btn" class="btn btn-primary" type="button">
+                    <span class="btn-text">RESUME</span><span class="btn-glow"></span>
+                </button>
+                <button id="pause-how-to-play-btn" class="btn btn-secondary" type="button">
+                    <span class="btn-text">HOW TO PLAY</span>
+                </button>
+                <button id="exit-btn" class="btn btn-secondary btn-exit" type="button">
+                    <span class="btn-text">EXIT TO MENU</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ===================== HOW TO PLAY MODAL ===================== -->
     <div id="how-to-play-modal" class="modal-overlay" aria-hidden="true">

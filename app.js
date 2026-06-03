@@ -50,6 +50,12 @@ const DOM = {
     howToPlayBtn:    document.getElementById('how-to-play-btn'),
     howToPlayModal:  document.getElementById('how-to-play-modal'),
     closeModalBtn:   document.getElementById('close-modal-btn'),
+    /* pause */
+    pauseBtn:        document.getElementById('pause-btn'),
+    pauseModal:      document.getElementById('pause-modal'),
+    resumeBtn:       document.getElementById('resume-btn'),
+    pauseHowToPlayBtn:document.getElementById('pause-how-to-play-btn'),
+    exitBtn:         document.getElementById('exit-btn'),
     /* game HUD */
     scoreDisplay:    document.getElementById('score-display'),
     levelDisplay:    document.getElementById('level-display'),
@@ -219,6 +225,8 @@ class GameEngine {
 
         /* Game state */
         this.state = GameState.LOADING;
+        this.isPaused = false;
+        this.timeRemainingOnPause = 0;
         this.score = 0;
         this.tilesCleared = 0;
         this.scareChance = 0;
@@ -242,6 +250,7 @@ class GameEngine {
     /* ------ Initialisation ------ */
     async init() {
         this._bindMenuEvents();
+        this._bindGlobalEvents();
         this.screenMgr.show(GameState.LOADING);
 
         await this.preloader.loadAll((p) => {
@@ -304,8 +313,68 @@ class GameEngine {
         });
     }
 
+    _bindGlobalEvents() {
+        DOM.pauseBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            this.togglePause();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (this.state === GameState.PLAYING || this.isPaused) {
+                    this.togglePause();
+                } else if (DOM.howToPlayModal.classList.contains('active')) {
+                    DOM.howToPlayModal.classList.remove('active');
+                }
+            }
+        });
+
+        DOM.resumeBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (this.isPaused) this.togglePause();
+        });
+
+        DOM.pauseHowToPlayBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            DOM.howToPlayModal.classList.add('active');
+        });
+
+        DOM.exitBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (this.isPaused) {
+                this.isPaused = false;
+                DOM.pauseModal.classList.remove('active');
+                if (DOM.bgMusic) {
+                    DOM.bgMusic.pause();
+                    DOM.bgMusic.currentTime = 0;
+                }
+                this.setState(GameState.MENU);
+            }
+        });
+    }
+
+    togglePause() {
+        if (this.state !== GameState.PLAYING) return;
+        
+        this.isPaused = !this.isPaused;
+        
+        if (this.isPaused) {
+            DOM.pauseModal.classList.add('active');
+            this._cancelTimer();
+            this.timeRemainingOnPause = Math.max(0, this.tileDeadline - performance.now());
+            if (DOM.bgMusic) DOM.bgMusic.pause();
+        } else {
+            DOM.pauseModal.classList.remove('active');
+            this.tileDeadline = performance.now() + this.timeRemainingOnPause;
+            this._tickTimer();
+            if (DOM.bgMusic) DOM.bgMusic.play().catch(()=>{});
+        }
+    }
+
     /* ------ PLAYING ------ */
     _enterPlaying() {
+        this.isPaused = false;
+        if (DOM.pauseModal) DOM.pauseModal.classList.remove('active');
         this._resetGameData();
         this.startTime = performance.now();
         this._buildGrid();
@@ -385,7 +454,7 @@ class GameEngine {
     /* ------ TILE INPUT HANDLING ------ */
     _onTilePointerDown(e) {
         e.preventDefault();
-        if (this.state !== GameState.PLAYING) return;
+        if (this.state !== GameState.PLAYING || this.isPaused) return;
 
         const idx = parseInt(e.currentTarget.dataset.index, 10);
         if (idx !== this.activeTileIndex) return; // wrong tile — ignore
@@ -435,7 +504,7 @@ class GameEngine {
     }
 
     _tickTimer() {
-        if (this.state !== GameState.PLAYING) return;
+        if (this.state !== GameState.PLAYING || this.isPaused) return;
 
         const now = performance.now();
         const remaining = Math.max(0, this.tileDeadline - now);
