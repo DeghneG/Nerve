@@ -572,10 +572,19 @@ class GameEngine {
         if (this.state !== GameState.PLAYING) return;
         DOM.jumpscareImage.src = this.preloader.scareImage.src || CONFIG.SCARE_IMAGE_PATH;
         DOM.jumpscareScreen.classList.add('active');
+        
+        if (DOM.scareMusic) {
+            DOM.scareMusic.currentTime = 3;
+            DOM.scareMusic.play().catch(e => console.warn('Flicker sound failed', e));
+        }
 
         setTimeout(() => {
             if (this.state === GameState.PLAYING) {
                 DOM.jumpscareScreen.classList.remove('active');
+            }
+            if (DOM.scareMusic) {
+                DOM.scareMusic.pause();
+                DOM.scareMusic.currentTime = 0;
             }
         }, 50);
     }
